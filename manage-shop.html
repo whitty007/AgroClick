@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Manage your AgroClick shop — add items, view orders, and read reviews.">
+<meta name="theme-color" content="#2C4D26">
+<title>Manage My Shop — AgroClick</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="navbar" role="banner"></div>
+
+<main>
+  <div class="page-header">
+    <h1 id="shopNameHeading">My Shop</h1>
+    <p>📍 <span id="shopLocBadge"></span></p>
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="Shop management">
+    <button class="tab-btn active" data-tab="panelItems" data-i18n="tab_items" role="tab" aria-selected="true" aria-controls="panelItems">Items</button>
+    <button class="tab-btn" data-tab="panelOrders" data-i18n="tab_orders" role="tab" aria-selected="false" aria-controls="panelOrders">Orders</button>
+    <button class="tab-btn" data-tab="panelReviews" data-i18n="tab_reviews" role="tab" aria-selected="false" aria-controls="panelReviews">Reviews</button>
+  </div>
+
+  <!-- ITEMS -->
+  <div class="tab-panel active" id="panelItems" role="tabpanel">
+    <div class="container mt-2 row between">
+      <div></div>
+      <div class="row" style="gap:8px; flex-wrap:wrap; justify-content:flex-end;">
+        <button class="btn btn-danger btn-sm" id="removeShopBtn" data-i18n="btn_remove_shop">Remove Shop</button>
+        <button class="btn btn-primary btn-sm" id="addItemBtn" data-i18n="btn_add_item">Add Item</button>
+      </div>
+    </div>
+    <div class="grid" id="itemsGrid" role="list" aria-label="Shop items"></div>
+    <div class="empty-state" id="itemsEmpty" style="display:none;">
+      <div class="glyph" aria-hidden="true">🧺</div>
+      <h3 data-i18n="no_items_yet">No items added</h3>
+      <p data-i18n="no_items_sub">Add your first crop so customers can find it.</p>
+    </div>
+  </div>
+
+  <!-- ORDERS -->
+  <div class="tab-panel" id="panelOrders" role="tabpanel">
+    <div class="container mt-2" id="ordersList"></div>
+    <div class="empty-state" id="ordersEmpty" style="display:none;">
+      <div class="glyph" aria-hidden="true">📦</div>
+      <h3 data-i18n="no_orders_yet">No orders yet.</h3>
+    </div>
+  </div>
+
+  <!-- REVIEWS -->
+  <div class="tab-panel" id="panelReviews" role="tabpanel">
+    <div class="container mt-2" id="reviewsList"></div>
+    <div class="empty-state" id="reviewsEmpty" style="display:none;">
+      <div class="glyph" aria-hidden="true">⭐</div>
+      <h3 data-i18n="no_reviews_yet">No reviews yet.</h3>
+    </div>
+  </div>
+</main>
+
+<!-- Add item modal -->
+<div class="modal-backdrop" id="addItemModal" role="dialog" aria-modal="true" aria-labelledby="addItemModalTitle">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('addItemModal')" aria-label="Close">✕</button>
+    <h2 id="addItemModalTitle" data-i18n="add_item_title">Add a new item</h2>
+    <form id="addItemForm" novalidate>
+      <div class="field">
+        <label data-i18n="label_item_photo">Photo</label>
+        <div class="img-upload">
+          <img id="itemPhotoPreview" style="display:none;" alt="Item preview">
+          <div class="ph" aria-hidden="true">📷</div>
+          <div data-i18n="upload_tap">Tap to upload</div>
+          <input type="file" id="itemPhotoInput" accept="image/*">
+        </div>
+      </div>
+      <div class="field">
+        <label for="itemNameInput" data-i18n="label_item_name">Crop / product name</label>
+        <input type="text" id="itemNameInput" required>
+      </div>
+      <div class="field">
+        <label for="itemPriceInput" data-i18n="label_item_price">Price per kg (₹)</label>
+        <input type="number" id="itemPriceInput" min="1" step="1" required>
+      </div>
+      <div class="field">
+        <label for="itemDescInput" data-i18n="label_item_desc">Description</label>
+        <textarea id="itemDescInput" rows="3"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" data-i18n="btn_save_item">Add to shop</button>
+    </form>
+  </div>
+</div>
+
+<div id="footer" role="contentinfo"></div>
+
+<script src="js/data.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/chatbot.js"></script>
+<script src="js/common.js"></script>
+<script src="js/shop.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", initManageShopPage);
+</script>
+</body>
+</html>

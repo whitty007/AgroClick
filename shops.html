@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Browse farm shops near you in Tamil Nadu — fresh vegetables, fruits, rice and spices.">
+<meta name="theme-color" content="#2C4D26">
+<title>Shops — AgroClick</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="navbar" role="banner"></div>
+
+<main>
+  <div class="page-header">
+    <h1 data-i18n="shops_title">Shops near you</h1>
+    <p data-i18n="shops_sub">Sorted by distance from your chosen place.</p>
+  </div>
+
+  <div class="grid" id="shopsGrid" role="list" aria-label="Shops"></div>
+  <div class="empty-state" id="shopsEmpty" style="display:none;">
+    <div class="glyph" aria-hidden="true">🌾</div>
+    <h3 data-i18n="no_shops_yet">No shops yet</h3>
+    <p data-i18n="no_shops_sub">Be the first — become a shop owner.</p>
+  </div>
+</main>
+
+<div id="footer" role="contentinfo"></div>
+
+<script src="js/data.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/chatbot.js"></script>
+<script src="js/common.js"></script>
+<script src="js/shops-list.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", initShopsPage);
+</script>
+</body>
+</html>

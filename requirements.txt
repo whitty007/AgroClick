@@ -1,0 +1,40 @@
+# AgroClick — Requirements
+# =========================
+# This project itself is plain HTML/CSS/JavaScript: there is nothing to
+# "pip install" or "npm install" just to look at it in a browser. The list
+# below covers (a) the one tiny tool you need to *run* it locally and
+# (b) everything you'll need as accounts/packages once you build the real
+# backend described in to_do.txt.
+
+# ---- To just run this prototype locally (pick ONE) ----
+# Option A: Python 3.8+   (for `python3 -m http.server`)
+# Option B: Node.js 18+   (for `npx serve .`)
+# Option C: VS Code "Live Server" extension
+
+# ---- Recommended backend stack (see to_do.txt Step 1) ----
+# Node.js >= 18
+# npm packages, once you scaffold a backend:
+#   express              # web server / API routes
+#   mongoose             # if using MongoDB
+#   pg                   # if using PostgreSQL instead
+#   dotenv                # keep API keys out of source code
+#   jsonwebtoken         # login sessions/tokens
+#   bcrypt                 # if you add any password hashing
+#   cors                    # allow the front end to call your API
+#   multer                 # handling file/image uploads
+#   razorpay               # official Razorpay Node SDK
+#   axios                  # calling SMS / KYC / HuggingFace APIs from the backend
+
+# ---- Third-party accounts you'll need (all have free tiers to start) ----
+# Razorpay account            -> payments               (razorpay.com)
+# MSG91 / Twilio / Fast2SMS   -> SMS OTP delivery
+# Digio / Surepass / similar  -> licensed Aadhaar/KYC verification API
+# HuggingFace account + token -> AI chatbot model access (huggingface.co)
+# Cloudinary or AWS S3        -> image storage at scale
+# Netlify / Vercel            -> hosting the front end (this folder)
+# Render / Railway            -> hosting the backend API + database
+
+# ---- Example backend setup (once you're ready) ----
+#   mkdir agroclick-backend && cd agroclick-backend
+#   npm init -y
+#   npm install express mongoose dotenv jsonwebtoken bcrypt cors multer razorpay axios

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Your cart — review items and checkout securely with Razorpay.">
+<meta name="theme-color" content="#2C4D26">
+<title>Cart — AgroClick</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
+</head>
+<body>
+
+<div id="navbar" role="banner"></div>
+
+<main>
+  <div class="page-header">
+    <h1 data-i18n="cart_title">Your Cart</h1>
+    <p class="muted" data-i18n="payment_demo_note">Secure online payment via Razorpay.</p>
+  </div>
+
+  <div class="container" id="cartGroups" style="padding-bottom:60px;" role="list" aria-label="Cart items"></div>
+
+  <div class="empty-state" id="cartEmpty" style="display:none;">
+    <div class="glyph" aria-hidden="true">🛒</div>
+    <h3 data-i18n="empty_cart">Your cart is empty</h3>
+    <p data-i18n="empty_cart_sub">Visit a shop and add some fresh produce.</p>
+    <a href="shops.html" class="btn btn-primary mt-2" data-i18n="btn_visit_shops">Visit Shops</a>
+  </div>
+</main>
+
+<div id="footer" role="contentinfo"></div>
+
+<script src="js/data.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/chatbot.js"></script>
+<script src="js/common.js"></script>
+<script src="js/cart.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", initCartPage);
+</script>
+</body>
+</html>

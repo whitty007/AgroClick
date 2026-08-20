@@ -1,0 +1,68 @@
+AGROCLICK — CURRENT STATUS & NEXT STEPS
+================================================================================
+
+This is a fully functional website ready for deployment. The chatbot runs
+locally with keyword-based responses (no external API needed). All demo
+labels have been removed.
+
+CURRENT STATUS
+--------------
+✅ Working website with full shopping flow
+✅ Bilingual (English/Tamil) throughout
+✅ Built-in keyword chatbot (no HuggingFace dependency)
+✅ Responsive design (mobile, tablet, desktop)
+✅ Interactive UI with animations
+✅ OTP login flow (demo mode or real SMS)
+✅ Shop creation and management
+✅ Cart and checkout with Razorpay support
+✅ Order tracking
+✅ Customer reviews
+
+NEXT STEPS FOR PRODUCTION
+---------------------------
+
+1. DATABASE (replace localStorage)
+   - Set up MongoDB or PostgreSQL
+   - Replace DB object in data.js with API calls
+   - Migrate existing data if needed
+
+2. REAL SMS OTP
+   - Sign up with Twilio or MSG91
+   - Add credentials to .env
+   - Set OTP_DEMO_MODE=false
+
+3. RAZORPAY LIVE MODE
+   - Complete Razorpay KYC
+   - Switch to live API keys
+   - Add backend endpoints for order creation/verification
+
+4. FILE STORAGE
+   - Set up Cloudinary or AWS S3
+   - Replace base64 image storage
+   - Update image upload logic
+
+5. DEPLOYMENT
+   - Frontend: Netlify or Vercel
+   - Backend: Render or Railway
+   - Configure environment variables
+   - Enable HTTPS
+
+6. SECURITY
+   - Add rate limiting
+   - Implement CSRF protection
+   - Validate all inputs server-side
+   - Use HTTPS everywhere
+
+7. MONITORING
+   - Set up error tracking (Sentry)
+   - Add analytics (Google Analytics)
+   - Monitor API usage
+
+NICE-TO-HAVES
+--------------
+- Order status updates (Placed → Packed → Out for delivery → Delivered)
+- Push/SMS notifications when order status changes
+- Search and filters on shops page (by crop type, price range)
+- Farmer payout dashboard showing earnings over time
+- Admin panel to handle disputes/reported reviews
+- Mobile app (React Native or Flutter)

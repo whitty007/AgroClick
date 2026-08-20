@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Login to AgroClick — verify your mobile number to buy fresh farm produce.">
+<meta name="theme-color" content="#2C4D26">
+<title>Login — AgroClick</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="navbar" role="banner"></div>
+
+<main>
+  <div class="form-shell" role="main">
+    <div class="steps-indicator" aria-label="Login progress">
+      <span></span><span></span><span></span>
+    </div>
+
+    <!-- STEP 1: mobile number -->
+    <div id="step1">
+      <h2 data-i18n="login_title">Login to AgroClick</h2>
+      <p class="sub" data-i18n="login_sub">We'll send a one-time code to verify your number.</p>
+      <form id="mobileForm" novalidate>
+        <div class="field">
+          <label for="mobileInput" data-i18n="label_mobile">Mobile number</label>
+          <input type="tel" id="mobileInput" inputmode="numeric" maxlength="10" placeholder="98765 43210" required autocomplete="tel">
+          <div class="field-error" id="mobileError" role="alert" data-i18n="err_mobile">Enter a valid 10-digit mobile number.</div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" data-i18n="btn_send_otp">Send OTP</button>
+      </form>
+    </div>
+
+    <!-- STEP 2: otp -->
+    <div id="step2" style="display:none;">
+      <h2 data-i18n="otp_title">Enter the OTP</h2>
+      <p class="sub"><span data-i18n="otp_sub">sent to</span> <strong id="otpDestination"></strong></p>
+      <div class="demo-otp-banner" data-i18n="demo_otp_banner" id="demoBanner" style="display:none;">
+        Demo mode — no SMS is actually sent. Your OTP is shown below.
+      </div>
+      <p class="center" style="font-size:1.4rem;font-weight:700;color:var(--paddy-dark);letter-spacing:.2em;display:none;" id="demoOtpValue"></p>
+      <form id="otpForm" novalidate>
+        <div class="otp-boxes" aria-label="One-time password">
+          <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 1">
+          <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 2">
+          <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 3">
+          <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 4">
+        </div>
+        <div class="field-error center" id="otpError" role="alert" data-i18n="err_otp" style="text-align:center;">Incorrect OTP. Please try again.</div>
+        <div class="otp-meta">
+          <button type="button" id="resendBtn" data-i18n="resend_otp">Resend OTP</button>
+          <span id="resendCountdown" style="display:none;" aria-live="polite"></span>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" data-i18n="btn_verify">Verify</button>
+      </form>
+    </div>
+
+    <!-- STEP 3: name -->
+    <div id="step3" style="display:none;">
+      <h2 data-i18n="ask_name_title">What should we call you?</h2>
+      <p class="sub" data-i18n="ask_name_sub">This is just for us to greet you nicely.</p>
+      <form id="nameForm" novalidate>
+        <div class="field">
+          <label for="nameInput" data-i18n="label_name">Your name</label>
+          <input type="text" id="nameInput" required autocomplete="name">
+          <div class="field-error" id="nameError" role="alert" data-i18n="err_name">Please tell us your name.</div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" data-i18n="btn_continue">Continue</button>
+      </form>
+    </div>
+  </div>
+</main>
+
+<div id="footer" role="contentinfo"></div>
+
+<script src="js/data.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/chatbot.js"></script>
+<script src="js/common.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", ()=>{
+    startLoginFlow();
+    wireOtpBoxAutoAdvance();
+  });
+</script>
+</body>
+</html>

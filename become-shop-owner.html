@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Become a shop owner on AgroClick — register your farm and start selling fresh produce.">
+<meta name="theme-color" content="#2C4D26">
+<title>Become a Shop Owner — AgroClick</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="navbar" role="banner"></div>
+
+<main>
+
+  <!-- ===== Existing Shop Owner Notice & Premium Upgrade Card ===== -->
+  <div class="form-shell" id="existingShopNotice" style="display:none; text-align:center;">
+    <div style="font-size:3rem; margin-bottom:12px;">🏪✨</div>
+    <h2 data-i18n="free_shop_limit_title" style="color:var(--soil-dark);">Free Shop Limit Reached</h2>
+    <p class="sub" style="font-size:1.05rem; margin-bottom:16px;" id="existingShopNameDisplay">
+      You have already created a free shop on AgroClick. The free plan allows 1 farm shop per seller.
+    </p>
+    <div style="background:var(--turmeric-pale); border:1.5px dashed var(--turmeric); border-radius:var(--radius); padding:16px; margin:20px 0; text-align:left;">
+      <h4 style="margin:0 0 6px 0; color:var(--turmeric-dark); display:flex; align-items:center; gap:6px;">
+        👑 <span>AgroClick Premium Seller Plan</span>
+      </h4>
+      <p style="font-size:.9rem; margin:0; color:var(--ink-soft);" data-i18n="upgrade_hint_msg">
+        Upgrade to Premium to create multiple farm shops, get featured search placement, and reach more customers across Tamil Nadu!
+      </p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px; margin-top:20px;">
+      <button type="button" class="btn btn-primary btn-block" id="btnUpgradePremium" style="background:linear-gradient(135deg, var(--turmeric) 0%, var(--soil) 100%); border:none; font-weight:700; font-size:1.05rem; padding:14px;">
+        ⭐ <span data-i18n="btn_upgrade_premium">Upgrade to Premium to Create Multiple Shops</span>
+      </button>
+      <a href="manage-shop.html" class="btn btn-outline btn-block" style="text-decoration:none; display:inline-block; text-align:center; padding:12px;">
+        ⚙️ <span data-i18n="btn_manage_existing_shop">Manage My Existing Shop</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- ===== KYC (one-time identity check) ===== -->
+  <div class="form-shell" id="kycSection">
+
+    <h2 data-i18n="kyc_title">Verify your details</h2>
+    <p class="sub" data-i18n="kyc_sub">We verify every farmer once, to keep AgroClick trustworthy for customers.</p>
+
+    <div id="aadharBlock">
+      <div id="aadharStep1">
+        <form id="aadharForm" novalidate>
+          <div class="field">
+            <label for="kycLocation" data-i18n="label_location">Your location</label>
+            <select id="kycLocation" required></select>
+          </div>
+          <div class="field">
+            <label for="aadharInput" data-i18n="label_aadhar">Aadhaar number</label>
+            <input type="text" id="aadharInput" inputmode="numeric" maxlength="12" placeholder="XXXX XXXX XXXX" required autocomplete="off">
+            <div class="field-error" id="aadharError" role="alert" data-i18n="err_aadhar">Enter a valid 12-digit Aadhaar number.</div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block" data-i18n="btn_send_aadhar_otp">Send Aadhaar OTP</button>
+        </form>
+      </div>
+
+      <div id="aadharStep2" style="display:none;">
+        <p class="center" style="font-size:1.3rem;font-weight:700;color:var(--paddy-dark);letter-spacing:.2em;" id="aadharDemoOtp"></p>
+        <form id="aadharOtpForm" novalidate>
+          <div class="field">
+            <label for="aadharOtpInput" data-i18n="otp_title">Enter the OTP</label>
+            <input type="text" id="aadharOtpInput" inputmode="numeric" maxlength="4" required>
+            <div class="field-error" id="aadharOtpError" role="alert" data-i18n="err_otp">Incorrect OTP.</div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block" data-i18n="btn_verify">Verify</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="bankBlock" style="display:none;">
+      <form id="bankForm" novalidate>
+        <div class="field">
+          <label for="accountInput" data-i18n="label_account">Bank account number</label>
+          <input type="text" id="accountInput" inputmode="numeric" required autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="ifscInput" data-i18n="label_ifsc">IFSC code</label>
+          <input type="text" id="ifscInput" required autocomplete="off">
+          <div class="field-error" id="bankError" role="alert" data-i18n="err_account">Enter your bank account number.</div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" data-i18n="btn_save_continue">Save & Continue</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="form-shell kyc-status ok center" id="kycDoneBanner" style="display:none; align-items:center; justify-content:center; gap:8px;">
+    ✅ <span data-i18n="kyc_done_msg">Identity verified.</span>
+  </div>
+
+  <!-- ===== shop creation ===== -->
+  <div class="form-shell" id="shopSection" style="display:none;">
+    <h2 data-i18n="shop_create_title">Create your shop</h2>
+    <p class="sub" data-i18n="shop_create_sub">Tell customers who you are.</p>
+    <form id="shopForm" novalidate>
+      <div class="field">
+        <label for="shopNameInput" data-i18n="label_shop_name">Shop name</label>
+        <input type="text" id="shopNameInput" required>
+      </div>
+      <div class="field">
+        <label data-i18n="label_owner_photo">Your photo</label>
+        <div class="img-upload">
+          <img id="ownerPhotoPreview" style="display:none;" alt="Owner preview">
+          <div class="ph" aria-hidden="true">📷</div>
+          <div data-i18n="upload_tap">Tap to upload</div>
+          <input type="file" id="ownerPhotoInput" accept="image/*">
+        </div>
+      </div>
+      <div class="field">
+        <label for="shopLocation" data-i18n="label_location">Your location</label>
+        <select id="shopLocation" required></select>
+        <div class="field-error" id="shopError" role="alert" style="display:none;">Please fill all fields.</div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" data-i18n="btn_create_shop">Create Shop</button>
+    </form>
+  </div>
+
+</main>
+
+<div id="footer" role="contentinfo"></div>
+
+<script src="js/data.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/chatbot.js"></script>
+<script src="js/common.js"></script>
+<script src="js/kyc.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", initBecomeShopOwnerPage);
+</script>
+</body>
+</html>

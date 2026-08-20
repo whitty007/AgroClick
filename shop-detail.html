@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="View shop items, prices, and reviews — order fresh farm produce directly.">
+<meta name="theme-color" content="#2C4D26">
+<title>Shop — AgroClick</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="navbar" role="banner"></div>
+
+<main>
+  <div class="shop-hero" role="banner">
+    <img id="shopHeroImg" src="assets/placeholder-owner.svg" alt="">
+    <div>
+      <h1 id="shopHeroName"></h1>
+      <div class="loc" id="shopHeroLoc"></div>
+      <div class="stars" id="shopHeroStars" aria-label="Rating"></div>
+    </div>
+  </div>
+
+  <div class="grid" id="itemsGrid" role="list" aria-label="Shop items"></div>
+  <div class="empty-state" id="itemsEmpty" style="display:none;">
+    <div class="glyph" aria-hidden="true">🌱</div>
+    <h3 data-i18n="no_items_in_shop">This shop hasn't added any items yet.</h3>
+  </div>
+
+  <div class="container mt-3">
+    <h2 data-i18n="reviews_title">Customer reviews</h2>
+    <div id="reviewsList" role="list" aria-label="Reviews"></div>
+    <div class="empty-state" id="reviewsEmpty" style="display:none;">
+      <p data-i18n="no_reviews_yet">No reviews yet.</p>
+    </div>
+
+    <div class="form-shell" style="margin:24px 0 60px;">
+      <h2 data-i18n="add_review_title">Add your review</h2>
+      <form id="reviewForm" novalidate>
+        <div class="field">
+          <label for="reviewRating" data-i18n="label_rating">Rating</label>
+          <select id="reviewRating">
+            <option value="5">★★★★★</option>
+            <option value="4">★★★★☆</option>
+            <option value="3">★★★☆☆</option>
+            <option value="2">★★☆☆☆</option>
+            <option value="1">★☆☆☆☆</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="reviewComment" data-i18n="label_comment">Comment</label>
+          <textarea id="reviewComment" rows="3" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" data-i18n="btn_submit_review">Submit Review</button>
+      </form>
+    </div>
+  </div>
+</main>
+
+<button class="cart-fab" id="cartFab" aria-label="View cart">
+  🛒 <span class="label">Cart</span> <span class="count">0</span>
+</button>
+
+<div id="footer" role="contentinfo"></div>
+
+<script src="js/data.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/chatbot.js"></script>
+<script src="js/common.js"></script>
+<script src="js/shop-detail.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", initShopDetailPage);
+</script>
+</body>
+</html>

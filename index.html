@@ -1,0 +1,71 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="AgroClick — Buy fresh farm produce directly from Tamil Nadu farmers. Vegetables, fruits, rice and spices with no middlemen.">
+<meta name="theme-color" content="#2C4D26">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>AgroClick — Farm to Home, Tamil Nadu</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="navbar" role="banner"></div>
+
+<main>
+  <section class="hero" aria-labelledby="heroTitle">
+    <div class="hero-rows">
+      <span class="eyebrow" data-i18n="hero_eyebrow">Direct from Tamil Nadu farms</span>
+      <img src="assets/logo.svg" alt="AgroClick logo" class="hero-logo">
+      <h1 id="heroTitle" data-i18n="hero_title">Fresh from the farm, straight to your home</h1>
+      <p class="lede" data-i18n="hero_lede">Buy vegetables, fruits, rice and spices directly from farmers near you.</p>
+      <div class="hero-ctas">
+        <a href="shops.html" class="btn btn-primary" data-i18n="btn_visit_shops">Visit Shops</a>
+        <button class="btn btn-secondary" id="becomeOwnerBtn" data-i18n="btn_become_owner">Become a Shop Owner</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="harvest-strip" id="heroStrip" role="presentation"></div>
+
+  <section class="how-it-works" aria-labelledby="howTitle">
+    <div class="how-grid">
+      <div class="how-step">
+        <div class="num">01</div>
+        <h3 id="howTitle" data-i18n="how1_t">Pick your place</h3>
+        <p data-i18n="how1_d">Choose your town so we show shops closest to you first.</p>
+      </div>
+      <div class="how-step">
+        <div class="num">02</div>
+        <h3 data-i18n="how2_t">Order farm-fresh produce</h3>
+        <p data-i18n="how2_d">Browse shops, add items to cart, and pay securely online.</p>
+      </div>
+      <div class="how-step">
+        <div class="num">03</div>
+        <h3 data-i18n="how3_t">Support a local farmer</h3>
+        <p data-i18n="how3_d">Your payment goes straight to the farmer who grew it.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="footer" role="contentinfo"></div>
+
+<script src="js/data.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/chatbot.js"></script>
+<script src="js/common.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", ()=>{
+    document.getElementById("heroStrip").innerHTML = harvestStripSVG();
+    document.getElementById("becomeOwnerBtn").addEventListener("click", ()=>{
+      const user = DB.getCurrentUser();
+      location.href = user ? "become-shop-owner.html" : "login.html?redirect=become-shop-owner.html";
+    });
+  });
+</script>
+</body>
+</html>

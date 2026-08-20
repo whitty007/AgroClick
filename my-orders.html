@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="View your order history — track placed and delivered orders.">
+<meta name="theme-color" content="#2C4D26">
+<title>My Orders — AgroClick</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="navbar" role="banner"></div>
+
+<main>
+  <div class="page-header">
+    <h1 data-i18n="orders_title">My Orders</h1>
+  </div>
+
+  <div class="container" id="ordersList" style="padding-bottom:60px;" role="list" aria-label="Order history"></div>
+  <div class="empty-state" id="ordersEmpty" style="display:none;">
+    <div class="glyph" aria-hidden="true">📦</div>
+    <h3 data-i18n="no_orders_placed">You haven't placed any orders yet.</h3>
+    <a href="shops.html" class="btn btn-primary mt-2" data-i18n="btn_visit_shops">Visit Shops</a>
+  </div>
+</main>
+
+<div id="footer" role="contentinfo"></div>
+
+<script src="js/data.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/chatbot.js"></script>
+<script src="js/common.js"></script>
+<script src="js/orders.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", initMyOrdersPage);
+</script>
+</body>
+</html>
