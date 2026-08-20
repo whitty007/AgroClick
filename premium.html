@@ -43,6 +43,7 @@
     font-weight: 800;
     margin-bottom: 12px;
     background: linear-gradient(180deg, #FFFFFF 0%, #E2F0D9 100%);
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
@@ -261,25 +262,39 @@
 <script src="js/chatbot.js"></script>
 <script src="js/common.js"></script>
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
+  function updatePremiumButton() {
     const user = DB.getCurrentUser();
     const btn = document.getElementById("btnActivatePremiumPage");
-    
+    if (!btn) return;
+
     if (user && user.isPremium) {
       btn.innerHTML = "✅ " + (getLang()==='ta' ? "பிரீமியம் ஏற்கனவே இயக்கப்பட்டது" : "Premium Already Active");
       btn.style.background = "#2E7D32";
       btn.disabled = true;
-      return;
+    } else {
+      btn.innerHTML = '👑 <span data-i18n="btn_activate_premium_now">' + t('btn_activate_premium_now') + '</span>';
+      btn.style.background = "linear-gradient(135deg, var(--paddy-dark) 0%, var(--paddy) 100%)";
+      btn.disabled = false;
     }
+  }
 
-    btn.addEventListener("click", () => {
-      if (!user) {
-        toast(getLang()==='ta' ? "தயவுசெய்து முதலில் உள்நுழையவும்" : "Please login first", "warning");
-        setTimeout(() => { location.href = "login.html?redirect=premium.html"; }, 1000);
-        return;
-      }
-      triggerGlobalPremiumModal(user);
-    });
+  document.addEventListener("DOMContentLoaded", () => {
+    updatePremiumButton();
+
+    document.addEventListener("agroclick:langchange", updatePremiumButton);
+
+    const btn = document.getElementById("btnActivatePremiumPage");
+    if (btn) {
+      btn.addEventListener("click", () => {
+        const user = DB.getCurrentUser();
+        if (!user) {
+          toast(getLang()==='ta' ? "தயவுசெய்து முதலில் உள்நுழையவும்" : "Please login first", "warning");
+          setTimeout(() => { location.href = "login.html?redirect=premium.html"; }, 1000);
+          return;
+        }
+        triggerGlobalPremiumModal(user);
+      });
+    }
   });
 </script>
 </body>

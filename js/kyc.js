@@ -52,19 +52,31 @@ function initBecomeShopOwnerPage(){
   populateLocationSelect(document.getElementById("kycLocation"));
 
   if(user.kyc && user.kyc.verified){
-    document.getElementById("kycSection").style.display = "none";
-    document.getElementById("kycDoneBanner").style.display = "flex";
+    const kycSec = document.getElementById("kycSection");
+    const kycDone = document.getElementById("kycDoneBanner");
+    if(kycSec) kycSec.style.display = "none";
+    if(kycDone) kycDone.style.display = "flex";
     showShopForm(user);
   }else{
-    document.getElementById("kycSection").style.display = "block";
-    document.getElementById("kycDoneBanner").style.display = "none";
+    const kycSec = document.getElementById("kycSection");
+    const kycDone = document.getElementById("kycDoneBanner");
+    if(kycSec) kycSec.style.display = "block";
+    if(kycDone) kycDone.style.display = "none";
   }
 
-  document.getElementById("aadharForm").addEventListener("submit", onSendAadharOtp);
-  document.getElementById("aadharOtpForm").addEventListener("submit", onVerifyAadharOtp);
-  document.getElementById("bankForm").addEventListener("submit", onSaveBank);
-  document.getElementById("shopForm").addEventListener("submit", onCreateShop);
-  document.getElementById("ownerPhotoInput").addEventListener("change", onOwnerPhotoChosen);
+  const bind = (id, evt, fn) => {
+    const el = document.getElementById(id);
+    if(el && !el.dataset.bound){
+      el.dataset.bound = "true";
+      el.addEventListener(evt, fn);
+    }
+  };
+
+  bind("aadharForm", "submit", onSendAadharOtp);
+  bind("aadharOtpForm", "submit", onVerifyAadharOtp);
+  bind("bankForm", "submit", onSaveBank);
+  bind("shopForm", "submit", onCreateShop);
+  bind("ownerPhotoInput", "change", onOwnerPhotoChosen);
 }
 
 function showPremiumUpgradeModal(user, shop){
@@ -76,7 +88,7 @@ function showPremiumUpgradeModal(user, shop){
   if (confirm(text + "\n\n" + (lang==='ta' ? "இப்போது பிரீமியத்திற்கு மேம்படுத்த விரும்புகிறீர்களா?" : "Would you like to activate Premium Seller Plan now?"))){
     user.isPremium = true;
     DB.saveUser(user);
-    toast(lang==='ta' ? "பிரீமியம் திட்டம் இயக்கப்பட்டடது! இப்போது கூடுதல் கடைகளை உருவாக்கலாம்." : "Premium Plan Activated! You can now create multiple farm shops.", "success");
+    toast(lang==='ta' ? "பிரீமியம் திட்டம் இயக்கப்பட்டது! இப்போது கூடுதல் கடைகளை உருவாக்கலாம்." : "Premium Plan Activated! You can now create multiple farm shops.", "success");
     setTimeout(() => { location.reload(); }, 1200);
   }
 }
@@ -91,18 +103,26 @@ function populateLocationSelect(select){
 
 function onSendAadharOtp(e){
   e.preventDefault();
-  const aadhar = document.getElementById("aadharInput").value.replace(/\s/g,"");
-  const loc = document.getElementById("kycLocation").value;
+  const aadharEl = document.getElementById("aadharInput");
+  const locEl = document.getElementById("kycLocation");
   const err = document.getElementById("aadharError");
+  const aadhar = aadharEl ? aadharEl.value.replace(/\s/g,"") : "";
+  const loc = locEl ? locEl.value : "";
+
   if(!/^\d{12}$/.test(aadhar) || !loc){
-    err.style.display = "block";
+    if(err) err.style.display = "block";
     return;
   }
-  err.style.display = "none";
+  if(err) err.style.display = "none";
   _aadharOtpPending = String(Math.floor(1000 + Math.random()*9000));
-  document.getElementById("aadharDemoOtp").textContent = _aadharOtpPending;
-  document.getElementById("aadharStep1").style.display = "none";
-  document.getElementById("aadharStep2").style.display = "block";
+  const demoOtpEl = document.getElementById("aadharDemoOtp");
+  if(demoOtpEl) demoOtpEl.textContent = _aadharOtpPending;
+  
+  const step1 = document.getElementById("aadharStep1");
+  const step2 = document.getElementById("aadharStep2");
+  if(step1) step1.style.display = "none";
+  if(step2) step2.style.display = "block";
+
   _kycAadharLast4 = aadhar.slice(-4);
   _kycLocation = loc;
   toast(getLang()==='ta' ? "ஆதார் OTP அனுப்பப்பட்டது" : "Aadhaar OTP sent", "success");
@@ -110,47 +130,67 @@ function onSendAadharOtp(e){
 
 function onVerifyAadharOtp(e){
   e.preventDefault();
-  const entered = document.getElementById("aadharOtpInput").value.trim();
+  const otpInput = document.getElementById("aadharOtpInput");
+  const entered = otpInput ? otpInput.value.trim() : "";
   const err = document.getElementById("aadharOtpError");
+
   if(entered !== _aadharOtpPending){
-    err.style.display = "block";
+    if(err) err.style.display = "block";
     return;
   }
-  err.style.display = "none";
-  document.getElementById("aadharBlock").style.display = "none";
-  document.getElementById("bankBlock").style.display = "block";
+  if(err) err.style.display = "none";
+  const aBlock = document.getElementById("aadharBlock");
+  const bBlock = document.getElementById("bankBlock");
+  if(aBlock) aBlock.style.display = "none";
+  if(bBlock) bBlock.style.display = "block";
 }
 
 function onSaveBank(e){
   e.preventDefault();
-  const acc = document.getElementById("accountInput").value.trim();
-  const ifsc = document.getElementById("ifscInput").value.trim();
+  const accEl = document.getElementById("accountInput");
+  const ifscEl = document.getElementById("ifscInput");
   const err = document.getElementById("bankError");
+  const acc = accEl ? accEl.value.trim() : "";
+  const ifsc = ifscEl ? ifscEl.value.trim() : "";
+
   if(acc.length < 6 || !ifsc){
-    err.style.display = "block";
+    if(err) err.style.display = "block";
     return;
   }
-  err.style.display = "none";
+  if(err) err.style.display = "none";
 
   const user = DB.getCurrentUser();
+  if(!user) return;
+
+  const loc = _kycLocation || user.location || user.kyc?.location || (document.getElementById("kycLocation") ? document.getElementById("kycLocation").value : "");
+  const aadhar4 = _kycAadharLast4 || user.kyc?.aadharLast4 || "";
+
   user.kyc = {
     verified: true,
-    location: _kycLocation,
-    aadharLast4: _kycAadharLast4,
+    location: loc,
+    aadharLast4: aadhar4,
     accountLast4: acc.slice(-4),
   };
+  user.kycVerified = true;
+  user.location = loc || user.location;
+  user.bankAccount = acc.slice(-4);
+  user.ifsc = ifsc;
+  if(aadhar4) user.aadhar = aadhar4;
+
   DB.saveUser(user);
 
   toast(t('kyc_done_msg'), "success");
-  document.getElementById("kycSection").style.display = "none";
+  const kSec = document.getElementById("kycSection");
+  if(kSec) kSec.style.display = "none";
   showShopForm(user);
 }
 
 function showShopForm(user){
-  document.getElementById("shopSection").style.display = "block";
+  const sSec = document.getElementById("shopSection");
+  if(sSec) sSec.style.display = "block";
   const locSelect = document.getElementById("shopLocation");
   populateLocationSelect(locSelect);
-  if(user.kyc && user.kyc.location) locSelect.value = user.kyc.location;
+  if(locSelect && user.kyc && user.kyc.location) locSelect.value = user.kyc.location;
 }
 
 let _ownerPhotoDataUrl = "assets/placeholder-owner.svg";
@@ -159,23 +199,31 @@ function onOwnerPhotoChosen(e){
   if(!file) return;
   fileToDataURL(file, (dataUrl)=>{
     _ownerPhotoDataUrl = dataUrl;
-    document.getElementById("ownerPhotoPreview").src = dataUrl;
-    document.getElementById("ownerPhotoPreview").style.display = "block";
+    const prev = document.getElementById("ownerPhotoPreview");
+    if(prev){
+      prev.src = dataUrl;
+      prev.style.display = "block";
+    }
   });
 }
 
 function onCreateShop(e){
   e.preventDefault();
-  const name = document.getElementById("shopNameInput").value.trim();
-  const loc = document.getElementById("shopLocation").value;
+  const nameEl = document.getElementById("shopNameInput");
+  const locEl = document.getElementById("shopLocation");
   const err = document.getElementById("shopError");
+  const name = nameEl ? nameEl.value.trim() : "";
+  const loc = locEl ? locEl.value : "";
+
   if(!name || !loc){
-    err.style.display = "block";
+    if(err) err.style.display = "block";
     return;
   }
-  err.style.display = "none";
+  if(err) err.style.display = "none";
 
   const user = DB.getCurrentUser();
+  if(!user) return;
+
   const shop = {
     id: newId("shop"),
     ownerMobile: user.mobile,
@@ -185,7 +233,11 @@ function onCreateShop(e){
     items: [],
     reviews: [],
   };
+  
+  user.isOwner = true;
+  DB.saveUser(user);
   DB.saveShop(shop);
+
   alert(t('shop_created_alert'));
   location.href = "index.html";
 }

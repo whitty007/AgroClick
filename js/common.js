@@ -106,10 +106,13 @@ function renderNavbar(){
       </div>
     </div>`;
 
-  document.getElementById("locationSelect").addEventListener("change", (e)=>{
-    DB.setLocation(e.target.value);
-    document.dispatchEvent(new CustomEvent("agroclick:locationchange", { detail:e.target.value }));
-  });
+  const locSelect = document.getElementById("locationSelect");
+  if(locSelect){
+    locSelect.addEventListener("change", (e)=>{
+      DB.setLocation(e.target.value);
+      document.dispatchEvent(new CustomEvent("agroclick:locationchange", { detail:e.target.value }));
+    });
+  }
 
 
   mount.querySelectorAll(".lang-toggle button").forEach(btn=>{
@@ -141,10 +144,13 @@ function renderNavbar(){
 
 function triggerGlobalPremiumModal(user){
   if(!user){
-    location.href = "premium.html";
+    location.href = "login.html?redirect=premium.html";
     return;
   }
-  if(window.location.pathname.endsWith("premium.html")){
+  const isPremiumPage = window.location.pathname.endsWith("premium.html") ||
+                        window.location.pathname.endsWith("premium") ||
+                        window.location.href.includes("premium");
+  if(isPremiumPage){
     const lang = getLang();
     const text = lang === 'ta'
       ? 'அக்ரோகிளிக் பிரீமியம் விற்பனையாளர் திட்டம் (₹499/ஆண்டு)\n\nவரம்பற்ற கடைகளை உருவாக்கவும், சிறந்த தேடல் பலன்களைப் பெறவும் இப்போது பிரீமியத்திற்கு மேம்படுத்த விரும்புகிறீர்களா?'
@@ -152,7 +158,7 @@ function triggerGlobalPremiumModal(user){
     if (confirm(text)){
       user.isPremium = true;
       DB.saveUser(user);
-      toast(lang==='ta' ? "பிரீமியம் திட்டம் இயக்கப்பட்டடது! 👑" : "Premium Plan Activated! 👑", "success");
+      toast(lang==='ta' ? "பிரீமியம் திட்டம் இயக்கப்பட்டது! 👑" : "Premium Plan Activated! 👑", "success");
       setTimeout(() => { location.reload(); }, 1200);
     }
   } else {

@@ -56,12 +56,18 @@ async function getPgPool(customConfig = null) {
     const config = buildPgConfig(customConfig);
     if (pgPool) await pgPool.end().catch(() => {});
     pgPool = new Pool(config);
+    pgPool.on("error", (err) => {
+      console.warn("PostgreSQL pool background error:", err.message);
+    });
     return pgPool;
   }
 
   if (!pgPool) {
     const config = buildPgConfig();
     pgPool = new Pool(config);
+    pgPool.on("error", (err) => {
+      console.warn("PostgreSQL pool background error:", err.message);
+    });
   }
   return pgPool;
 }
@@ -173,7 +179,17 @@ async function saveStateToPg(state, customConfig = null) {
            bank_account = EXCLUDED.bank_account,
            ifsc = EXCLUDED.ifsc,
            location = EXCLUDED.location`,
-        [u.mobile, u.name || "", Boolean(u.isOwner), Boolean(u.isPremium), Boolean(u.kycVerified), u.aadhar || null, u.bankAccount || null, u.ifsc || null, u.location || ""]
+         [
+           u.mobile,
+           u.name || "",
+           Boolean(u.isOwner),
+           Boolean(u.isPremium),
+           Boolean(u.kycVerified || u.kyc?.verified),
+           u.aadhar || u.kyc?.aadharLast4 || null,
+           u.bankAccount || u.kyc?.accountLast4 || null,
+           u.ifsc || null,
+           u.location || u.kyc?.location || ""
+         ]
       );
     }
   }
@@ -587,7 +603,7 @@ async function callAiChatbotApi(userText) {
 
   // 1. Google Gemini API (using native systemInstruction)
   if (geminiKey) {
-    const models = ["gemini-3.6-flash", "gemini-1.5-flash", "gemma-4-26b-a4b-it"];
+    const models = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"];
     for (const m of models) {
       try {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${geminiKey}`;
@@ -816,11 +832,31 @@ app.get("/api/pg/state", async (req, res) => {
 });
 
 
-/* ---- SPA fallback ---- */
-app.get("*", (_req, res) => {
-  res.sendFile(path.join(__dirname, "..", "index.html"));
+/* ---- Extensionless HTML & SPA fallback ---- */
+app.get("*", (req, res) => {
+  const reqPath = req.path.slice(1);
+  if (reqPath && !reqPath.includes(".")) {
+    const candidatePath = path.join(__dirname, "..", `${reqPath}.html`);
+    res.sendFile(candidatePath, (err) => {
+      if (err) {
+        res.sendFile(path.join(__dirname, "..", "index.html"));
+      }
+    });
+  } else {
+    res.sendFile(path.join(__dirname, "..", "index.html"));
+  }
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`AgroClick server running on http://localhost:${PORT}`);
+});
+
+server.on("error", (err) => {
+  if (err.code === "EADDRINUSE") {
+    console.error(`\n[AgroClick Server Error] Port ${PORT} is already in use by another process.`);
+    console.error(`Please stop the existing process or set PORT=<number> in .env\n`);
+    process.exit(1);
+  } else {
+    console.error("[AgroClick Server Error]:", err.message);
+  }
 });
