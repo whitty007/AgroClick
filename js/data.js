@@ -88,6 +88,10 @@ function _write(key, value){
 function newId(prefix){
   return prefix + "_" + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
 }
+function hasKnownItemQuantity(item){
+  return item && item.quantity !== null && item.quantity !== undefined &&
+    item.quantity !== "" && Number.isFinite(Number(item.quantity)) && Number(item.quantity) >= 0;
+}
 
 function _queueRemoteSync(){
   if (typeof window === "undefined") return;
@@ -128,9 +132,9 @@ async function restoreStateFromPg(){
     if (!payload?.state) return false;
 
     const state = payload.state;
-    if (state.users) _write(LS.USERS, state.users);
-    if (state.shops) _write(LS.SHOPS, state.shops);
-    if (state.orders) _write(LS.ORDERS, state.orders);
+    if (state.users && Object.keys(state.users).length > 0) _write(LS.USERS, state.users);
+    if (Array.isArray(state.shops) && state.shops.length > 0) _write(LS.SHOPS, state.shops);
+    if (Array.isArray(state.orders) && state.orders.length > 0) _write(LS.ORDERS, state.orders);
     if (state.cart) _write(LS.CART, state.cart);
     if (state.lang) _write(LS.LANG, state.lang);
     if (state.location) _write(LS.LOCATION, state.location);
@@ -182,10 +186,10 @@ async function restoreStateFromMongo(){
     if (!payload?.state) return false;
 
     const state = payload.state;
-    if (state.users) _write(LS.USERS, state.users);
+    if (state.users && Object.keys(state.users).length > 0) _write(LS.USERS, state.users);
     if (state.session) _write(LS.SESSION, state.session);
-    if (state.shops) _write(LS.SHOPS, state.shops);
-    if (state.orders) _write(LS.ORDERS, state.orders);
+    if (Array.isArray(state.shops) && state.shops.length > 0) _write(LS.SHOPS, state.shops);
+    if (Array.isArray(state.orders) && state.orders.length > 0) _write(LS.ORDERS, state.orders);
     if (state.cart) _write(LS.CART, state.cart);
     if (state.lang) _write(LS.LANG, state.lang);
     if (state.location) _write(LS.LOCATION, state.location);
@@ -331,8 +335,8 @@ function seedDemoDataIfEmpty(){
       id:newId("shop"), ownerMobile:"9990000001", name:"Periyar Organic Farm (Sample)",
       ownerImage:"assets/placeholder-owner.svg", location:"Coimbatore",
       items:[
-        { id:newId("item"), name:"Tomato", image:"assets/placeholder-crop.svg", price:28, desc:"Farm-fresh, vine-ripened tomatoes.", outOfStock:false },
-        { id:newId("item"), name:"Banana (Nendran)", image:"assets/placeholder-crop.svg", price:55, desc:"Sweet Nendran bananas, hand-cut.", outOfStock:false },
+        { id:newId("item"), name:"Tomato", category:"Vegetable", image:"assets/placeholder-crop.svg", price:28, quantity:30, desc:"Farm-fresh, vine-ripened tomatoes.", outOfStock:false },
+        { id:newId("item"), name:"Banana (Nendran)", category:"Fruit", image:"assets/placeholder-crop.svg", price:55, quantity:20, desc:"Sweet Nendran bananas, hand-cut.", outOfStock:false },
       ],
       reviews:[ { id:newId("rev"), customer:"Kavitha", rating:5, comment:"Very fresh, delivered fast!", date:Date.now()-86400000 } ],
     },
@@ -340,8 +344,8 @@ function seedDemoDataIfEmpty(){
       id:newId("shop"), ownerMobile:"9990000002", name:"Thanjai Rice Mandram (Sample)",
       ownerImage:"assets/placeholder-owner.svg", location:"Thanjavur",
       items:[
-        { id:newId("item"), name:"Ponni Rice", image:"assets/placeholder-crop.svg", price:62, desc:"Traditional Ponni rice, 1kg pack.", outOfStock:false },
-        { id:newId("item"), name:"Turmeric (Whole)", image:"assets/placeholder-crop.svg", price:140, desc:"Sun-dried whole turmeric.", outOfStock:true },
+        { id:newId("item"), name:"Ponni Rice", category:"Grain", image:"assets/placeholder-crop.svg", price:62, quantity:100, desc:"Traditional Ponni rice, 1kg pack.", outOfStock:false },
+        { id:newId("item"), name:"Turmeric (Whole)", category:"Spice", image:"assets/placeholder-crop.svg", price:140, quantity:0, desc:"Sun-dried whole turmeric.", outOfStock:true },
       ],
       reviews:[],
     },
@@ -350,9 +354,11 @@ function seedDemoDataIfEmpty(){
 }
 
 document.addEventListener("DOMContentLoaded", async ()=>{
+  seedDemoDataIfEmpty();
   const restoredPg = await restoreStateFromPg();
   if (!restoredPg) {
     await restoreStateFromMongo();
   }
+  seedDemoDataIfEmpty();
+  document.dispatchEvent(new CustomEvent("agroclick:statechange"));
 });
-

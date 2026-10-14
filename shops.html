@@ -18,6 +18,50 @@
     <p data-i18n="shops_sub">Sorted by distance from your chosen place.</p>
   </div>
 
+  <section class="product-search container" aria-labelledby="productSearchTitle">
+    <h2 id="productSearchTitle" data-i18n="product_search_title">Find farm products</h2>
+    <div class="product-search-grid">
+      <div class="field">
+        <label for="productQuery" data-i18n="product_search_name">Product name</label>
+        <input id="productQuery" type="search" data-i18n-ph="product_search_name_ph" placeholder="e.g. tomato">
+      </div>
+      <div class="field">
+        <label for="productCategory" data-i18n="product_search_category">Category</label>
+        <input id="productCategory" type="text" data-i18n-ph="product_search_category_ph" placeholder="e.g. vegetable">
+      </div>
+      <div class="field">
+        <label for="productLocation" data-i18n="product_search_location">Location</label>
+        <input id="productLocation" type="text" data-i18n-ph="product_search_location_ph" placeholder="Town or city">
+      </div>
+      <div class="field">
+        <label for="productMinPrice" data-i18n="product_search_min_price">Minimum price (₹/kg)</label>
+        <input id="productMinPrice" type="number" min="0" step="0.01" inputmode="decimal">
+      </div>
+      <div class="field">
+        <label for="productMaxPrice" data-i18n="product_search_max_price">Maximum price (₹/kg)</label>
+        <input id="productMaxPrice" type="number" min="0" step="0.01" inputmode="decimal">
+      </div>
+      <div class="field">
+        <label for="productMinQuantity" data-i18n="product_search_min_quantity">Minimum available (kg)</label>
+        <input id="productMinQuantity" type="number" min="0" step="0.1" inputmode="decimal">
+      </div>
+      <div class="field">
+        <label for="productSort" data-i18n="product_search_sort">Sort products</label>
+        <select id="productSort">
+          <option value="relevance" data-i18n="sort_relevance">Best match</option>
+          <option value="priceAsc" data-i18n="sort_price_low">Price: low to high</option>
+          <option value="priceDesc" data-i18n="sort_price_high">Price: high to low</option>
+          <option value="name" data-i18n="sort_name">Name</option>
+          <option value="quantityDesc" data-i18n="sort_quantity">Quantity: high to low</option>
+        </select>
+      </div>
+    </div>
+    <p class="search-hint" data-i18n="product_search_scoring">Best match uses product name, category, location, price, and quantity relevance. Stock requirements only match listings with a recorded quantity.</p>
+    <h3 data-i18n="product_results_title">Product results</h3>
+    <div id="productSearchStatus" class="search-hint" aria-live="polite"></div>
+    <div class="grid" id="productResults" role="list" aria-label="Product search results"></div>
+  </section>
+
   <div class="grid" id="shopsGrid" role="list" aria-label="Shops"></div>
   <div class="empty-state" id="shopsEmpty" style="display:none;">
     <div class="glyph" aria-hidden="true">🌾</div>
@@ -30,6 +74,7 @@
 
 <script src="js/data.js"></script>
 <script src="js/i18n.js"></script>
+<script src="js/product-search.js"></script>
 <script src="js/chatbot.js"></script>
 <script src="js/common.js"></script>
 <script src="js/shops-list.js"></script>

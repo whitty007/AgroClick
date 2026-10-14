@@ -74,6 +74,8 @@ function renderItems(){
       <div class="card-body">
         <h3>${escapeHtml(item.name)}</h3>
         <div class="card-price">₹${item.price}${t('per_kg')}</div>
+        ${item.category ? `<div class="card-meta">${escapeHtml(item.category)}</div>` : ""}
+        ${hasKnownItemQuantity(item) ? `<div class="card-meta">${Number(item.quantity)} ${t('available_quantity')}</div>` : ""}
         <div class="card-meta">${escapeHtml(item.desc || "")}</div>
         <span class="badge ${item.outOfStock?'badge-out':'badge-stock'}">${item.outOfStock?t('out_of_stock'):t('in_stock')}</span>
       </div>
@@ -115,15 +117,19 @@ function onAddItem(e){
   e.preventDefault();
   const name = document.getElementById("itemNameInput").value.trim();
   const price = parseFloat(document.getElementById("itemPriceInput").value);
+  const category = document.getElementById("itemCategoryInput").value.trim();
+  const rawQuantity = document.getElementById("itemQuantityInput").value.trim();
+  const quantity = rawQuantity === "" ? null : Number(rawQuantity);
   const desc = document.getElementById("itemDescInput").value.trim();
-  if(!name || !price || price<=0){
-    toast(getLang()==='ta' ? "பெயர் மற்றும் விலையை சரிபார்க்கவும்" : "Check the name and price", "error");
+  if(!name || !Number.isFinite(price) || price<=0 ||
+     (quantity !== null && (!Number.isFinite(quantity) || quantity <= 0))){
+    toast(getLang()==='ta' ? "பெயர், விலை மற்றும் அளவை சரிபார்க்கவும்" : "Check the name, price, and quantity", "error");
     return;
   }
   const shop = currentShop();
   shop.items.push({
-    id:newId("item"), name, price, desc,
-    image:_newItemPhoto, outOfStock:false,
+    id:newId("item"), name, category, price, desc,
+    image:_newItemPhoto, quantity, outOfStock:quantity === 0,
   });
   DB.saveShop(shop);
   closeModal("addItemModal");

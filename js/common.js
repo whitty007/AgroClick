@@ -227,4 +227,5 @@ document.addEventListener("DOMContentLoaded", ()=>{
   renderManageShopFab();
   applyI18n(document);
   if(window.mountChatbot) window.mountChatbot();
+  if(window.mountVoiceAssistant) window.mountVoiceAssistant();
 });

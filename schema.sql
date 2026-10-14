@@ -37,9 +37,14 @@ CREATE TABLE IF NOT EXISTS shop_items (
     image TEXT,
     price NUMERIC(10, 2) NOT NULL,
     description TEXT,
+    category VARCHAR(80),
+    quantity NUMERIC(10, 2),
     out_of_stock BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE shop_items ADD COLUMN IF NOT EXISTS category VARCHAR(80);
+ALTER TABLE shop_items ADD COLUMN IF NOT EXISTS quantity NUMERIC(10, 2);
 
 -- 4. Shop Reviews Table
 CREATE TABLE IF NOT EXISTS shop_reviews (

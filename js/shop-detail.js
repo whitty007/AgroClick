@@ -50,14 +50,16 @@ function renderShopItems(shop){
       <div class="card-body">
         <h3>${escapeHtml(item.name)}</h3>
         <div class="card-price">₹${item.price}${t('per_kg')}</div>
+        ${item.category ? `<div class="card-meta">${escapeHtml(item.category)}</div>` : ""}
+        ${hasKnownItemQuantity(item) ? `<div class="card-meta">${Number(item.quantity)} ${t('available_quantity')}</div>` : ""}
         <div class="card-meta">${escapeHtml(item.desc || "")}</div>
         ${item.outOfStock ? `<span class="badge badge-out">${t('out_of_stock')}</span>` : ``}
       </div>
       <div class="card-foot">
         <button class="btn ${inCart?'btn-secondary':'btn-primary'} btn-block btn-sm"
-          ${item.outOfStock ? "disabled" : ""}
+          ${item.outOfStock || (hasKnownItemQuantity(item) && inCart >= Number(item.quantity)) ? "disabled" : ""}
           onclick="onAddToCart('${item.id}', this)">
-          ${item.outOfStock ? t('out_of_stock') : (inCart ? `✓ ${t('added_label')} (${inCart})` : t('btn_add_to_cart'))}
+          ${item.outOfStock ? t('out_of_stock') : (hasKnownItemQuantity(item) && inCart >= Number(item.quantity) ? t('out_of_stock') : (inCart ? `✓ ${t('added_label')} (${inCart})` : t('btn_add_to_cart')))}
         </button>
       </div>
     </div>`;
@@ -72,6 +74,13 @@ function onAddToCart(itemId, btnEl){
       const target = "shop-detail.html?shopId=" + _detailShopId;
       location.href = "login.html?redirect=" + encodeURIComponent(target);
     }, 1000);
+    return;
+  }
+  const shop = DB.getShop(_detailShopId);
+  const item = shop && shop.items.find(entry=>entry.id===itemId);
+  const cartQty = (DB.getCart()[_detailShopId] || {})[itemId] || 0;
+  if(!item || item.outOfStock || (hasKnownItemQuantity(item) && cartQty >= Number(item.quantity))){
+    toast(t('out_of_stock'), "warning");
     return;
   }
   DB.addToCart(_detailShopId, itemId);

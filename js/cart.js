@@ -15,6 +15,13 @@ const RAZORPAY_KEY_ID = ""; // e.g. "rzp_test_xxxxxxxxxxxxxx" — leave blank fo
 
 function initCartPage(){
   renderCart();
+  const voiceMode = new URLSearchParams(location.search).get("voice");
+  const restoredVoiceOrder = voiceMode === "resume" &&
+    typeof window.consumePendingVoiceOrder === "function" &&
+    window.consumePendingVoiceOrder();
+  if ((voiceMode === "checkout" || restoredVoiceOrder) && typeof window.beginVoiceCheckout === "function") {
+    setTimeout(() => window.beginVoiceCheckout(), 350);
+  }
   document.addEventListener("agroclick:langchange", renderCart);
 }
 
@@ -51,7 +58,7 @@ function renderCart(){
           <div class="qty-stepper">
             <button onclick="changeQty('${shopId}','${l.item.id}', -1)">−</button>
             <span>${l.qty}</span>
-            <button onclick="changeQty('${shopId}','${l.item.id}', 1)">+</button>
+            <button ${l.item.outOfStock || (hasKnownItemQuantity(l.item) && Number(l.qty) >= Number(l.item.quantity)) ? "disabled" : ""} onclick="changeQty('${shopId}','${l.item.id}', 1)">+</button>
           </div>
           <div class="lineprice">₹${l.item.price*l.qty}</div>
         </div>`).join("")}
@@ -67,14 +74,20 @@ function renderCart(){
 function changeQty(shopId, itemId, delta){
   const cart = DB.getCart();
   const current = (cart[shopId] && cart[shopId][itemId]) || 0;
+  const shop = DB.getShop(shopId);
+  const item = shop && shop.items.find(entry=>entry.id===itemId);
+  if(delta > 0 && item && hasKnownItemQuantity(item) && current >= Number(item.quantity)){
+    toast(t('out_of_stock'), "warning");
+    return;
+  }
   DB.setCartQty(shopId, itemId, current + delta);
   renderCart();
 }
 
-function payShop(shopId, amount){
+function payShop(shopId, amount, voiceConfirmed = false){
   const user = requireLogin("cart.html");
-  if(!user) return;
-  if(amount <= 0) return;
+  if(!user) return false;
+  if(amount <= 0) return false;
 
   const shop = DB.getShop(shopId);
   if(RAZORPAY_KEY_ID && window.Razorpay){
@@ -96,6 +109,7 @@ function payShop(shopId, amount){
         toast(getLang()==='ta' ? "கட்டணம் தோல்வியடைந்தது" : "Payment failed", "error");
       });
       rzp.open();
+      return "payment_pending";
     } catch(err) {
       console.error("Razorpay init failed:", err);
       toast(getLang()==='ta' ? "Razorpay ஏற்ற முடியவில்லை" : "Could not load payment gateway", "error");
@@ -104,14 +118,26 @@ function payShop(shopId, amount){
     const label = getLang()==='ta'
       ? `₹${amount} செலுத்தி ஆர்டர் செய்யவா?`
       : `Pay ₹${amount} and place this order?`;
-    if(confirm(label)) completeOrder(shopId, amount);
+    if(voiceConfirmed) return completeOrder(shopId, amount, true);
+    if(confirm(label)) return completeOrder(shopId, amount);
   }
+  return false;
 }
 
-function completeOrder(shopId, amount){
+function completeOrder(shopId, amount, voiceConfirmed = false){
   const user = DB.getCurrentUser();
   const shop = DB.getShop(shopId);
   const cart = DB.getCart()[shopId] || {};
+  const exceedsStock = Object.entries(cart).some(([itemId, qty])=>{
+    const item = shop && shop.items.find(entry=>entry.id===itemId);
+    return !item || item.outOfStock ||
+      (hasKnownItemQuantity(item) && Number(qty) > Number(item.quantity));
+  });
+  if(exceedsStock){
+    toast(t('cart_stock_changed'), "warning");
+    renderCart();
+    return false;
+  }
   const items = Object.entries(cart).map(([itemId, qty])=>{
     const item = shop.items.find(i=>i.id===itemId);
     return item ? { itemId, name:item.name, qty, price:item.price } : null;
@@ -129,7 +155,9 @@ function completeOrder(shopId, amount){
   };
   DB.addOrder(order);
   DB.clearShopCart(shopId);
-  alert(t('order_confirmed'));
+  if(voiceConfirmed) toast(t('order_confirmed'), "success");
+  else alert(t('order_confirmed'));
   renderCart();
   renderNavbar(); // refresh so "My Orders" link appears
+  return true;
 }

@@ -80,8 +80,16 @@
         <input type="text" id="itemNameInput" required>
       </div>
       <div class="field">
+        <label for="itemCategoryInput" data-i18n="label_item_category">Category</label>
+        <input type="text" id="itemCategoryInput" maxlength="80">
+      </div>
+      <div class="field">
         <label for="itemPriceInput" data-i18n="label_item_price">Price per kg (₹)</label>
-        <input type="number" id="itemPriceInput" min="1" step="1" required>
+        <input type="number" id="itemPriceInput" min="0.01" step="0.01" required>
+      </div>
+      <div class="field">
+        <label for="itemQuantityInput" data-i18n="label_item_quantity">Available quantity (kg, optional)</label>
+        <input type="number" id="itemQuantityInput" min="0" step="0.1" inputmode="decimal">
       </div>
       <div class="field">
         <label for="itemDescInput" data-i18n="label_item_desc">Description</label>
@@ -96,6 +104,7 @@
 
 <script src="js/data.js"></script>
 <script src="js/i18n.js"></script>
+<script src="js/product-search.js"></script>
 <script src="js/chatbot.js"></script>
 <script src="js/common.js"></script>
 <script src="js/shop.js"></script>
