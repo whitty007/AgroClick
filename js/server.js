@@ -766,7 +766,8 @@ async function callAiChatbotApi(userText, language, products) {
 
   // 1. Google Gemini API (using native systemInstruction)
   if (geminiKey) {
-    const models = ["gemini-3.5-flash-lite", "gemini-3.8-flash"];
+    const preferredModel = (process.env.GEMINI_CHAT_MODEL || "gemini-3.8-flash").trim();
+    const models = [...new Set([preferredModel, "gemini-3.8-flash", "gemini-3.5-flash-lite"])];
     for (const m of models) {
       let requestTimeout;
       try {

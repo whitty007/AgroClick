@@ -133,7 +133,6 @@ let chatbotSilenceTimer = null;
 let chatbotSpeakingButton = null;
 
 let voiceAssistantRecognition = null;
-let voiceAssistantPromptTimer = null;
 let voiceAssistantSessionId = 0;
 let voiceAssistantLastTranscript = "";
 let voiceAssistantState = {
@@ -252,10 +251,6 @@ function stopVoiceAssistantRecognition() {
     try { voiceAssistantRecognition.stop(); } catch (error) {}
   }
   if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-  if (voiceAssistantPromptTimer) {
-    clearTimeout(voiceAssistantPromptTimer);
-    voiceAssistantPromptTimer = null;
-  }
   voiceAssistantRecognition = null;
   voiceAssistantState.active = false;
   voiceAssistantState.pendingAction = null;
@@ -286,7 +281,9 @@ function startVoiceAssistantPrompt(promptText, pendingAction, payload = {}, opti
   voiceAssistantState.lastPrompt = promptText;
 
   const button = document.getElementById("voice-assistant-fab");
-  if (button) button.classList.add("is-listening");
+  if (button) {
+    button.classList.add("is-listening");
+  }
   updateVoiceAssistantDisplay(promptText, getLang() === "ta" ? "கேட்கிறேன்:" : "Listening for:");
 
   const recognition = new SpeechRecognition();
@@ -463,9 +460,9 @@ function navigateVoicePage(target, responseText = "") {
 
 function voiceReply(text, { listenAgain = false } = {}) {
   updateVoiceAssistantDisplay(text);
-  speakVoiceResponse(text, getLang(), listenAgain
-    ? () => startVoiceAssistantPrompt("", "command")
-    : null);
+  speakVoiceResponse(text, getLang(), () => {
+    if (listenAgain) startVoiceAssistantPrompt("", "command");
+  });
 }
 
 function getCartShopSummary(shopId) {
@@ -808,7 +805,7 @@ function parseVoiceIntentLocally(text) {
   if (!clean) return { action: "unknown" };
   if (/(cancel|stop|never mind|ரத்து|நிறுத்து|வேண்டாம்)/i.test(lower)) return { action: "cancel" };
   if (/(help|what can you do|assist|உதவி|நீங்கள் எப்படி)/i.test(lower)) return { action: "help" };
-  if (/(checkout|pay|place order|complete my order|செக் அவுட்|பணம் செலுத்து)/i.test(lower)) return { action: "checkout" };
+  if (/(checkout|\bpay\b|place order|complete my order|செக் அவுட்|பணம் செலுத்து)/i.test(lower)) return { action: "checkout" };
   if (/(my cart|show cart|open cart|view cart|கார்ட்|வண்டி)/i.test(lower)) return { action: "show_cart" };
   if (/(my orders|order history|show orders|ஆர்டர்கள்|எனது ஆர்டர்கள்)/i.test(lower)) return { action: "show_orders" };
   if (/(log out|logout|sign out|வெளியேறு)/i.test(lower)) return { action: "logout" };
@@ -1186,9 +1183,24 @@ function handleVoiceQuantity(text, payload = {}) {
   );
 }
 
+function isVoiceInformationQuestion(text) {
+  const clean = sanitizeSpeechInput(text);
+  const startsAsQuestion = /^(?:(?:what|which|who|when|where|why|how|can|could|would|is|are|do|does|tell me|explain)\b|(?:என்ன|எது|எப்படி|ஏன்|எங்கே|எவ்வளவு|சொல்லுங்கள்)(?:\s|$))/i.test(clean);
+  const asksAboutMarketplaceFacts = /\b(price|cost|available|details|delivery|payment|farm|seller|shop)\b|விலை|கிடைக்க|விவரம்|கட்டணம்|டெலிவரி/i.test(clean);
+  const explicitOrder = /\b(order me|buy me|get me|i want|i need|add .* cart|purchase)\b|ஆர்டர் செய்ய|வாங்கி தர|கார்ட்டில் சேர்/i.test(clean);
+  return !explicitOrder && (startsAsQuestion || asksAboutMarketplaceFacts);
+}
+
 async function handleVoiceAssistantText(text) {
   const clean = sanitizeSpeechInput(text || "");
   if (!clean) return;
+  if (isVoiceInformationQuestion(clean)) {
+    const answer = await getVoiceAssistantAnswer(clean);
+    voiceReply(answer || (getLang() === "ta"
+      ? "இந்தக் கேள்விக்குப் பதிலளிக்க AI சேவை தற்போது கிடைக்கவில்லை."
+      : "The AI answer service is currently unavailable. Please try again."), { listenAgain: true });
+    return;
+  }
   const localIntent = parseVoiceIntentLocally(clean);
   let intent = null;
   if (["unknown", "add_to_cart", "search_products", "navigate"].includes(localIntent.action)) {
@@ -1197,7 +1209,59 @@ async function handleVoiceAssistantText(text) {
     );
     intent = await getAiVoiceIntent(clean);
   }
-  executeVoiceIntent(intent || localIntent, clean);
+  const resolvedIntent = intent || localIntent;
+  if (resolvedIntent.action === "unknown") {
+    if (intent?.reply) {
+      voiceReply(intent.reply, { listenAgain: true });
+      return;
+    }
+    const answer = await getVoiceAssistantAnswer(clean);
+    voiceReply(answer || (getLang() === "ta"
+      ? "இந்தக் கேள்விக்குப் பதிலளிக்க AI சேவை தற்போது கிடைக்கவில்லை."
+      : "The AI answer service is currently unavailable. Please try again."), { listenAgain: true });
+    return;
+  }
+  executeVoiceIntent(resolvedIntent, clean);
+}
+
+async function getVoiceAssistantAnswer(text) {
+  if (typeof fetch !== "function") return null;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 40000);
+  const language = getLang();
+  const products = typeof getMarketplaceProducts === "function"
+    ? getMarketplaceProducts()
+      .filter(item => item.available !== false)
+      .slice(0, 5)
+      .map(item => ({
+        name: item.name,
+        category: item.category,
+        price: item.price,
+        quantity: item.quantity,
+        available: true,
+        shopName: item.shopName,
+        location: item.location,
+      }))
+    : [];
+  try {
+    const response = await fetch("/api/chatbot", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, language, products }),
+      signal: controller.signal,
+    });
+    if (!response.ok) throw new Error(`Voice assistant service returned ${response.status}.`);
+    const data = await response.json();
+    if (typeof data.reply !== "string" || !data.reply.trim()) {
+      throw new Error("Voice assistant returned an empty answer.");
+    }
+    return data.reply.trim();
+  } catch (error) {
+    console.warn("AI voice answer unavailable:", error.message);
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 function triggerVoiceAssistantFlow(kind, payload = {}) {
@@ -1258,7 +1322,8 @@ function mountVoiceAssistant() {
       return;
     }
     const prompt = getLang() === "ta"
-      ? "நீங்கள் என்ன செய்ய விரும்புகிறீர்கள்?" : "What would you like to do?";
+      ? "நீங்கள் என்ன செய்ய விரும்புகிறீர்கள்?"
+      : "What would you like to do?";
     startVoiceAssistantPrompt(prompt, "command", {});
   });
   const widget = document.createElement("div");

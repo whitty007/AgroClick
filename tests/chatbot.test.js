@@ -128,7 +128,10 @@ function createVoiceAssistantHarness(fetchImpl = undefined) {
     classList: {
       add: name => buttonClasses.add(name),
       remove: name => buttonClasses.delete(name),
+      toggle: (name, enabled) => enabled ? buttonClasses.add(name) : buttonClasses.delete(name),
     },
+    setAttribute() {},
+    title: "",
   };
   const recognitions = [];
   const utterances = [];
@@ -240,6 +243,16 @@ test("retries speech recognition without phrase hints when the browser rejects t
   assert.equal(recognitions[1].started, true);
 });
 
+test("voice assistant listens for one spoken request without wake-word mode", () => {
+  const { context, recognitions } = createVoiceAssistantHarness();
+
+  context.startVoiceAssistantPrompt("", "command");
+
+  assert.equal(recognitions.length, 1);
+  assert.equal(recognitions[0].continuous, false);
+  assert.equal(context.extractVoiceWakeCommand, undefined);
+});
+
 test("a spoken product name starts a quantity prompt without requiring an order keyword", async () => {
   const { context, recognitions, utterances } = createVoiceAssistantHarness();
 
@@ -247,6 +260,23 @@ test("a spoken product name starts a quantity prompt without requiring an order 
 
   assert.equal(recognitions.length, 1);
   assert.match(utterances.at(-1).text, /How many kilograms of Tomato/);
+});
+
+test("general voice questions get an AI answer, then automatically listen for the next request", async () => {
+  const fetchImpl = async url => url === "/api/voice-command"
+    ? { ok: true, json: async () => ({ action: "unknown" }) }
+    : { ok: true, json: async () => ({ reply: "You can pay using UPI or cards." }) };
+  const { context, utterances, recognitions } = createVoiceAssistantHarness(fetchImpl);
+
+  assert.equal(context.parseVoiceIntentLocally("what payment methods do you accept").action, "unknown");
+  await context.handleVoiceAssistantText("what payment methods do you accept");
+
+  assert.equal(utterances.at(-1).text, "You can pay using UPI or cards");
+  assert.equal(recognitions.length, 0);
+  utterances.at(-1).onend();
+  assert.equal(recognitions.length, 1);
+  assert.equal(recognitions[0].started, true);
+  assert.equal(recognitions[0].continuous, false);
 });
 
 test("AI intent lets a natural-language voice order add a product and quantity", async () => {
